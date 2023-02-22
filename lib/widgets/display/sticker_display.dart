@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'dart:developer';
+import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +12,25 @@ import 'package:flutter_social_keyboard/models/recent_sticker.dart';
 import 'package:flutter_social_keyboard/models/sticker.dart';
 import 'package:flutter_social_keyboard/models/category_sticker.dart';
 import 'package:flutter_social_keyboard/utils/sticker_picker_internal_utils.dart';
+
+extension ImageTool on ImageProvider {
+  Future<Uint8List?> getBytes(BuildContext context, {ImageByteFormat format = ImageByteFormat.rawRgba}) async {
+    final imageStream = resolve(createLocalImageConfiguration(context));
+    final Completer<Uint8List?> completer = Completer<Uint8List?>();
+    final ImageStreamListener listener = ImageStreamListener(
+          (imageInfo, synchronousCall) async {
+        final bytes = await imageInfo.image.toByteData(format: format);
+        if (!completer.isCompleted) {
+          completer.complete(bytes?.buffer.asUint8List());
+        }
+      },
+    );
+    imageStream.addListener(listener);
+    final imageBytes = await completer.future;
+    imageStream.removeListener(listener);
+    return imageBytes;
+  }
+}
 
 class StickerDisplay extends StatefulWidget {
   final CategorySticker stickerModel;
@@ -54,6 +76,7 @@ class _StickerDisplayState extends State<StickerDisplay> {
 
   @override
   Widget build(BuildContext context) {
+
     return widget.stickerModel.stickers.isEmpty
         ? const Center(
             child: Text(
@@ -71,6 +94,7 @@ class _StickerDisplayState extends State<StickerDisplay> {
               mainAxisSpacing: widget.keyboardConfig.stickerVerticalSpacing,
             ),
             itemBuilder: (context, index) {
+
               return GestureDetector(
                 onTap: () {
                   if (widget.keyboardConfig.showRecentsTab) {
@@ -94,14 +118,46 @@ class _StickerDisplayState extends State<StickerDisplay> {
                         widget.stickerModel.stickers[index]);
                   }
                 },
+                // child: CachedNetworkImage(
+                //   imageUrl: widget.stickerModel.stickers[index].assetUrl,
+                //   placeholder: (context, url) =>
+                //   const CircularProgressIndicator.adaptive(),
+                //   errorWidget: (context, url, error) =>
+                //   const Icon(Icons.error),
+                //   fit: BoxFit.cover,
+                // ),
                 child: CachedNetworkImage(
                   imageUrl: widget.stickerModel.stickers[index].assetUrl,
-                  placeholder: (context, url) =>
-                  const CircularProgressIndicator.adaptive(),
-                  errorWidget: (context, url, error) =>
-                  const Icon(Icons.error),
-                  fit: BoxFit.cover,
-                ),
+                  imageBuilder: (context, imageProvider) {
+                    final format = widget.stickerModel.stickers[index].assetUrl.toLowerCase().contains('png') ? ImageByteFormat.png : ImageByteFormat.rawRgba;
+                    imageProvider.resolve(const ImageConfiguration())
+                        .addListener(
+                      ImageStreamListener(
+                            (info, _) async {
+                              final _image = info.image;
+                              widget.stickerModel.stickers[index].width = _image.width;
+                              widget.stickerModel.stickers[index].height = _image.height;
+                            },
+                    ),);
+                    imageProvider.getBytes(context, format: format).then((imageBytes) {
+                      if (imageBytes != null && imageBytes.isNotEmpty) {
+                        // DO WHAT YOU WANT WITH YOUR BYTES
+                        widget.stickerModel.stickers[index].size = imageBytes.length;
+                      }
+                    });
+                    return Container(
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                              image: imageProvider,
+                              fit: BoxFit.cover,
+                          ),
+                        )
+                    );
+                  },
+                  placeholder: (context, url) => const CircularProgressIndicator.adaptive(),
+                  errorWidget: (context, url, dynamic error) => const Icon(Icons.error_outline),
+                )
+
 
 
                 // Image.asset(

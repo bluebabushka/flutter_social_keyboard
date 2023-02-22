@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -39,6 +40,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   }
 
   Widget _body() {
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(

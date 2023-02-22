@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_social_keyboard/flutter_social_keyboard.dart';
+import 'package:flutter_social_keyboard_example/stickers_categories.dart';
 
 void main() {
   runApp(
@@ -82,10 +83,19 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                 ),
 
                 selectedSticker != null
-                    ? Image.asset(
-                        selectedSticker!.assetUrl,
-                        height: 100,
-                      )
+                    ? CachedNetworkImage(
+                        imageUrl: selectedSticker!.assetUrl,
+                        fit: BoxFit.fitHeight,
+                        height: 150,
+                        errorWidget: ((context, url, error) =>
+                            Text(error.toString())),
+                        placeholder: ((context, url) =>
+                          const CircularProgressIndicator.adaptive()),
+                    )
+                    // ? Image.asset(
+                    //     selectedSticker!.assetUrl,
+                    //     height: 100,
+                    //   )
                     : const Text(
                         "NO Sticker selected",
                         style: TextStyle(
@@ -127,6 +137,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                 gifVerticalSpacing: 5,
                 gifColumns: 3,
                 gifLang: GiphyLanguage.english,
+                stickersSource: stickersSource,
                 stickerColumns: 5,
                 stickerHorizontalSpacing: 5,
                 stickerVerticalSpacing: 5,

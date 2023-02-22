@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
@@ -93,12 +94,22 @@ class _StickerDisplayState extends State<StickerDisplay> {
                         widget.stickerModel.stickers[index]);
                   }
                 },
-                child: Image.asset(
-                  widget.stickerModel.stickers[index].assetUrl,
-                  errorBuilder: ((context, error, stackTrace) =>
-                      const Icon(Icons.error)),
+                child: CachedNetworkImage(
+                  imageUrl: widget.stickerModel.stickers[index].assetUrl,
+                  placeholder: (context, url) =>
+                  const CircularProgressIndicator.adaptive(),
+                  errorWidget: (context, url, error) =>
+                  const Icon(Icons.error),
                   fit: BoxFit.cover,
                 ),
+
+
+                // Image.asset(
+                //   widget.stickerModel.stickers[index].assetUrl,
+                //   errorBuilder: ((context, error, stackTrace) =>
+                //       const Icon(Icons.error)),
+                //   fit: BoxFit.cover,
+                // ),
               );
             },
           );

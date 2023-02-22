@@ -16,6 +16,7 @@ class KeyboardConfig {
     this.gifHorizontalSpacing = 5,
     this.stickerColumns = 4,
     this.gifLang = GiphyLanguage.english,
+    this.stickersSource = const {},
     this.stickerHorizontalSpacing = 5,
     this.stickerVerticalSpacing = 5,
     this.emojiColumns = 7,
@@ -82,6 +83,9 @@ class KeyboardConfig {
 
   /// Number of stickers per row
   final int stickerColumns;
+
+  /// List of stickers source data
+  final Map stickersSource;
 
   /// Vertical spacing between stickers
   final double stickerVerticalSpacing;

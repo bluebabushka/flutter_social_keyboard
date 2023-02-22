@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_social_keyboard/models/keyboard_config.dart';
@@ -84,14 +85,10 @@ class StickerPickerWidgetState extends State<StickerPickerWidget>
         )
         .toList();
 
+    // log(_allStickers.toString());
+
     //  Get folder names from categories and tab titles
-    List<String> tabsTitle = [];
-    for (var i = 0; i < _allStickers.length; i++) {
-      String s = _allStickers[i].split("/")[2];
-      if (!tabsTitle.contains(s)) {
-        tabsTitle.add(s);
-      }
-    }
+    List<String> tabsTitle = widget.keyboardConfig.stickersSource.keys.toList() as List<String>;
 
     //Add titles to tab list and create tab controller
     _tabs.addAll(tabsTitle);
@@ -117,6 +114,7 @@ class StickerPickerWidgetState extends State<StickerPickerWidget>
   Future<void> _updateStickers() async {
     _categorySticker.clear();
     for (var i = 0; i < _tabs.length; i++) {
+
       if (i == 0 && widget.keyboardConfig.showRecentsTab) {
         List<Sticker> recents =
             (await StickerPickerInternalUtils().getRecentStickers())
@@ -127,11 +125,11 @@ class StickerPickerWidgetState extends State<StickerPickerWidget>
           stickers: recents,
         ));
       } else {
-        List<Sticker> stickers = _allStickers
-            .where((asset) => asset.contains("assets/stickers/${_tabs[i]}"))
-            .toList()
-            .map((e) => Sticker(assetUrl: e, category: _tabs[i]))
-            .toList();
+
+        final category = _tabs[i];
+        final stickersUrls = widget.keyboardConfig.stickersSource[_tabs[i]];
+
+        List<Sticker> stickers = Sticker.listFromJson(stickersUrls, category);
         _categorySticker.add(CategorySticker(
           category: _tabs[i],
           stickers: stickers,

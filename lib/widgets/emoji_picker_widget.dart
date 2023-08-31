@@ -39,7 +39,7 @@ class _EmojiPickerWidgetState extends State<EmojiPickerWidget> {
         skinToneDialogBgColor: widget.keyboardConfig.skinToneDialogBgColor,
         skinToneIndicatorColor: widget.keyboardConfig.skinToneIndicatorColor,
         enableSkinTones: widget.keyboardConfig.enableSkinTones,
-        showRecentsTab: widget.keyboardConfig.showRecentsTab,
+        // showRecentsTab: widget.keyboardConfig.showRecentsTab,
         recentsLimit: widget.keyboardConfig.recentsLimit,
         replaceEmojiOnLimitExceed:
             widget.keyboardConfig.replaceRecentOnLimitExceed,
